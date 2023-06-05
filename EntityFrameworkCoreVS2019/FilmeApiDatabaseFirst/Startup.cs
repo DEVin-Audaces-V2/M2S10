@@ -1,16 +1,12 @@
+using FilmeApiDatabaseFirst.Context;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using Microsoft.AspNetCore.Mvc.Versioning;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Microsoft.OpenApi.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace FilmeApiDatabaseFirst
 {
@@ -23,15 +19,40 @@ namespace FilmeApiDatabaseFirst
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
             services.AddControllers();
-            services.AddSwaggerGen(c =>
+            services.AddSwaggerGen();
+
+            services.AddApiVersioning(o =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "FilmeApiDatabaseFirst", Version = "v1" });
+                o.AssumeDefaultVersionWhenUnspecified = true;
+                o.DefaultApiVersion = new Microsoft.AspNetCore.Mvc.ApiVersion(1, 0);
+                o.ReportApiVersions = true;
+                o.ApiVersionReader = ApiVersionReader.Combine(
+                   new QueryStringApiVersionReader("api-version"),
+                    new HeaderApiVersionReader("X-Version"),
+                    new MediaTypeApiVersionReader("ver")
+                    );
             });
+
+
+            services.AddVersionedApiExplorer(
+                options =>
+                {
+                    options.GroupNameFormat = "'v'VVV";
+                    options.SubstituteApiVersionInUrl = true;
+                });
+
+            services.ConfigureOptions<ConfigureSwaggerOptions>();
+
+            services.AddDbContext<FilmeContext>(options =>
+                    options.UseSqlServer(Configuration.GetConnectionString("ServerConnection")));
+
+            services.AddControllers().AddNewtonsoftJson(options =>
+                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+            );
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -41,7 +62,20 @@ namespace FilmeApiDatabaseFirst
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "FilmeApiDatabaseFirst v1"));
+                var descriptionProvider = app.ApplicationServices.GetRequiredService<IApiVersionDescriptionProvider>();
+                app.UseSwaggerUI(
+                    options =>
+                    {
+                        foreach (var description in descriptionProvider.ApiVersionDescriptions)
+                        {
+                            string isDeprecated = description.IsDeprecated ? " (Depreciada)" : string.Empty;
+
+                            options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json",
+                                    $"{description.GroupName.ToUpperInvariant()}{isDeprecated}");
+
+                        }
+                    }
+                );
             }
 
             app.UseHttpsRedirection();
