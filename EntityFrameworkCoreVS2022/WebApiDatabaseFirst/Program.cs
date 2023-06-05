@@ -1,5 +1,6 @@
-using FilmeApiCodeFirst.Context;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using WebApiDatabaseFirst.Context;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,7 +10,6 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
 builder.Services.AddDbContext<FilmeContext>(options =>
                                 options.UseSqlServer(
                                     builder.Configuration.GetConnectionString("ServerConnection")));
@@ -17,7 +17,6 @@ builder.Services.AddDbContext<FilmeContext>(options =>
 
 builder.Services.AddControllers().AddNewtonsoftJson(
     x => x.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
-
 
 
 var app = builder.Build();
