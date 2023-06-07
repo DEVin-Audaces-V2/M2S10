@@ -2,7 +2,7 @@
 
 namespace FilmeApiCodeFirst.Migrations
 {
-    public partial class CriacaoBancoDadosFilmesDB : Migration
+    public partial class Inicial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

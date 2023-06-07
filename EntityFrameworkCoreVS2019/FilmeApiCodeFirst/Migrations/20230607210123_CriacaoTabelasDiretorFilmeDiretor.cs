@@ -2,7 +2,7 @@
 
 namespace FilmeApiCodeFirst.Migrations
 {
-    public partial class CriacaoTabelasDiretor_FilmeDiretor : Migration
+    public partial class CriacaoTabelasDiretorFilmeDiretor : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

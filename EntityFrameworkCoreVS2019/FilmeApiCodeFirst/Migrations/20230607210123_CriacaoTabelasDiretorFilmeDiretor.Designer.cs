@@ -9,8 +9,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FilmeApiCodeFirst.Migrations
 {
     [DbContext(typeof(FilmeContext))]
-    [Migration("20230607201521_CriacaoTabelasDiretor_FilmeDiretor")]
-    partial class CriacaoTabelasDiretor_FilmeDiretor
+    [Migration("20230607210123_CriacaoTabelasDiretorFilmeDiretor")]
+    partial class CriacaoTabelasDiretorFilmeDiretor
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
